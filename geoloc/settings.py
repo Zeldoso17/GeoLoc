@@ -81,7 +81,7 @@ WSGI_APPLICATION = 'geoloc.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'GeoLoc',
+        'NAME': 'GeoLoca',
         'USER': 'postgres',
         'PASSWORD': 'Camaro17',
         'HOST': 'localhost',

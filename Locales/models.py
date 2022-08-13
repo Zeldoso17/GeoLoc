@@ -3,6 +3,7 @@ from django.db import models
 # Create your models here.
 
 class Locales(models.Model):
+    clee = models.CharField("CLEE", max_length=200, blank=True, null=True)
     idLocal = models.CharField(("Id del local"), max_length=50, blank=True, null=True)
     nombreLocal = models.CharField(("Nombre del local"), max_length=200, blank=True, null=True)
     razonSocial = models.CharField(("Razon social"), max_length=200, blank=True, null=True)
@@ -19,8 +20,8 @@ class Locales(models.Model):
     Correo = models.CharField(("Correo Electronico"), max_length=100, blank=True, null=True)
     sitioInternet = models.CharField(("Sitio de Internet"), max_length=50, blank=True, null=True)
     tipoUnidadEconomica = models.CharField(("Tipo de unidad Economica"), max_length=50, blank=True, null=True)
-    Latitud = models.CharField(("Latitud"), max_length=100, blank=True, null=True)
-    Longitud = models.CharField(("Longitud"), max_length=50),
+    Longitud = models.CharField(("Longitud"), max_length=100, blank=True, null=True)
+    Latitud = models.CharField(("Latitud"), max_length=50)
     centroComercial = models.CharField(("Centro Comercial"), max_length=200, blank=True, null=True)
     tipoCentroComercial = models.CharField(("Tipo de Centro Comercial"), max_length=100, blank=True, null=True)
     numeroLocal = models.CharField(("Numero de Local"), max_length=50, blank=True, null=True)
