@@ -22,10 +22,10 @@ class getPlaces(APIView):
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, query, lat, long, metros):
+    def get(self, request, query):
         try:
-            urlApiBusqueda = f'http://www.inegi.org.mx/app/api/denue/v1/consulta/buscar/{query}/{lat},{long}/{metros}/{TOKEN}'
-            print(urlApiBusqueda)
+            urlApiBusqueda = f'http://www.inegi.org.mx/app/api/denue/v1/consulta/buscar/{query}/{ request.query_params["proximity"] }/{ request.query_params["metros"] }/{TOKEN}'
+            print('PROXIMIDAD -> ', request.query_params["proximity"])
             locales = requests.get(urlApiBusqueda)
             for local in locales.json():
                 localExist = Locales.objects.filter(idLocal=local['Id'])
@@ -55,7 +55,11 @@ class getPlaces(APIView):
                         numeroLocal=local['NumLocal']
                     )
                     print('Se ha registrado')
-            return Response(locales.json(), status=status.HTTP_200_OK)
+            data = {
+                'message': 'Se encontraron resultados',
+                'lugares': locales.json()
+            }
+            return Response(data, status=status.HTTP_200_OK)
         except:
             return Response("No se encontró ningun lugar cerca de ti", status=status.HTTP_404_NOT_FOUND)
 
