@@ -71,6 +71,9 @@ class getPlace(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, pk):
-        urlApiBusqueda = f'http://www.inegi.org.mx/app/api/denue/v1/consulta/Ficha/{pk}/{TOKEN}'
-        locales = requests.get(urlApiBusqueda)
-        return Response(locales.json(), status=status.HTTP_200_OK)
+        try:
+            urlApiBusqueda = f'http://www.inegi.org.mx/app/api/denue/v1/consulta/Ficha/{pk}/{TOKEN}'
+            locales = requests.get(urlApiBusqueda)
+            return Response(locales.json(), status=status.HTTP_200_OK)
+        except:
+            return Response("No se encontro informacion para ese lugar", status=status.HTTP_400_BAD_REQUEST)
