@@ -1,7 +1,5 @@
-from dataclasses import fields
 import requests
 import os
-import json
 from dotenv import load_dotenv
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
@@ -19,7 +17,9 @@ from .models import Locales
 load_dotenv()
 
 TOKEN = os.getenv('API_TOKEN')
-
+METROS = []
+METROS_ACTUAL = ''
+METROS_PREVIOS = ''
 
 @method_decorator(csrf_exempt, name='dispatch')
 class getPlaces(APIView):
@@ -31,18 +31,27 @@ class getPlaces(APIView):
         buscarApiDenue = False
         try:
             if not buscarApiDenue:
-                print('Antes del POINT')
                 coords = request.query_params['proximity'].split(',')
+                METROS_ACTUAL = request.query_params["metros"]
+                METROS.append(METROS_ACTUAL)
+                METROS_PREVIOS = METROS[-1-1]
+                print('METROS ACTUALES -> ', METROS_ACTUAL)
+                print('METROS PREVIOS -> ', METROS_PREVIOS)
                 latitude = coords[0]
                 longitud = coords[1]
                 lugares = []
-                print(type(latitude), type(longitud))
                 pnt = 'POINT({} {})'.format(float(longitud), float(latitude))
                 point = GEOSGeometry(pnt, srid=4326)
-                locales = serializers.serialize('python', Locales.objects.filter(Clase_actividad__contains=query).filter(punto__distance_lte=(point, Distance(m=request.query_params["metros"]))))
+                locales = serializers.serialize('python', Locales.objects.filter(Clase_actividad__icontains=query).filter(punto__distance_lte=(point, Distance(m=request.query_params["metros"]))))
+                print('ANTES DEL IF DE LA PARTE DE LA BD')
                 for place in locales:
                     lugares.append(place['fields'])
+                print('LUGARESBD -> ', lugares)
                 if len(lugares) == 0:
+                    print('ENTRO AL IF PARA VERIFICAR QUE NO HAY RESULTADOS')
+                    raise Exception()
+                if int(METROS_ACTUAL) > int(METROS_PREVIOS):
+                    print('ENTRO AL IF PARA VERIFICAR LOS METROS')
                     raise Exception()
                 print('--------------------------------------------------   ')
                 data = {
@@ -52,12 +61,11 @@ class getPlaces(APIView):
                 print('Se buscó en la Base de Datos')
                 return Response(data, status=status.HTTP_200_OK)
         except:
-            print('ESTOY EN EL EXCEPT')
             try:
                 urlApiBusqueda = f'https://www.inegi.org.mx/app/api/denue/v1/consulta/buscar/{query}/{ request.query_params["proximity"] }/{ request.query_params["metros"] }/{TOKEN}'
                 print('PROXIMIDAD -> ', request.query_params["proximity"])
                 locales = requests.get(urlApiBusqueda)
-                print('LOCALES -> ', locales.json())
+                print('LOCALES INEGI -> ', locales.json())
                 for local in locales.json():
                     localExist = Locales.objects.filter(Id=local['Id'])
                     if not localExist.exists():
