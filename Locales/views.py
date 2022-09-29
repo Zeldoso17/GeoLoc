@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, permissions, authentication
@@ -13,6 +14,7 @@ from django.contrib.gis.measure import Distance
 from django.core import serializers
 
 from .models import Locales
+from .serializers import CustomFilterSerializer
 
 load_dotenv()
 
@@ -31,29 +33,34 @@ class getPlaces(APIView):
         buscarApiDenue = False
         try:
             if not buscarApiDenue:
+                print('HOLA JEJEJEJE')
                 coords = request.query_params['proximity'].split(',')
+                print('COORDS')
                 METROS_ACTUAL = request.query_params["metros"]
+                print('METROS ACTUALES')
                 METROS.append(METROS_ACTUAL)
-                METROS_PREVIOS = METROS[-1-1]
+                print('AGREGAR METROS A ARRAY')
+                if len(METROS) > 1:
+                    METROS_PREVIOS = METROS[-1-1]
+                print('OBTENER LOS METROS PREVIOS')
                 print('METROS ACTUALES -> ', METROS_ACTUAL)
-                print('METROS PREVIOS -> ', METROS_PREVIOS)
+                #print('METROS PREVIOS -> ', METROS_PREVIOS)
                 latitude = coords[0]
                 longitud = coords[1]
                 lugares = []
                 pnt = 'POINT({} {})'.format(float(longitud), float(latitude))
                 point = GEOSGeometry(pnt, srid=4326)
+                print('ANTES DE LOS LOCALESBD JEJE')
                 locales = serializers.serialize('python', Locales.objects.filter(Clase_actividad__icontains=query).filter(punto__distance_lte=(point, Distance(m=request.query_params["metros"]))))
-                print('ANTES DEL IF DE LA PARTE DE LA BD')
                 for place in locales:
                     lugares.append(place['fields'])
-                print('LUGARESBD -> ', lugares)
                 if len(lugares) == 0:
                     print('ENTRO AL IF PARA VERIFICAR QUE NO HAY RESULTADOS')
                     raise Exception()
+                
                 if int(METROS_ACTUAL) > int(METROS_PREVIOS):
                     print('ENTRO AL IF PARA VERIFICAR LOS METROS')
-                    raise Exception()
-                print('--------------------------------------------------   ')
+                print('-------------------------------------------------------------------------------------------------------------------')
                 data = {
                     'message': 'Se encontraron resultados en la Base de Datos',
                     'lugares': lugares
@@ -105,15 +112,77 @@ class getPlaces(APIView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class getPlace(APIView):
+class getPlaceInfo(APIView):
 
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, pk):
+        """
+        lugares = []
+        try:
+            locales = serializers.serialize('python',Locales.objects.filter(Id=pk))
+            for place in locales:
+                    lugares.append(place['fields'])
+            data = {
+                'message': 'Se obtuvo un resultado',
+                'local': lugares[0]
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except:
+            return Response("No se encontro informacion para ese lugar", status=status.HTTP_400_BAD_REQUEST)
+        """
         try:
             urlApiBusqueda = f'http://www.inegi.org.mx/app/api/denue/v1/consulta/Ficha/{pk}/{TOKEN}'
             locales = requests.get(urlApiBusqueda)
             return Response(locales.json(), status=status.HTTP_200_OK)
         except:
             return Response("No se encontro informacion para ese lugar", status=status.HTTP_400_BAD_REQUEST)
+
+@method_decorator(csrf_exempt, name="dispatch")
+class getPlace(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        queryset = Locales.objects.all()
+
+        Nombre = self.request.query_params.get('Nombre', None)
+        Clase_actividad = self.request.query_params.get('Clase_actividad', None)
+        Calle = self.request.query_params.get('Calle', None)
+        Colonia = self.request.query_params.get('Colonia', None)
+        CP = self.request.query_params.get('CP', None)
+        Ubicacion = self.request.query_params.get('Ubicacion', None)
+
+        """ Condicional para si hay un query param llamado Nombre """
+        if Nombre:
+            queryset = queryset.filter(Nombre=Nombre)
+        
+        """ Condicional para si hay un query param llamado Clase_actividad """
+        if Clase_actividad:
+            queryset = queryset.filter(Clase_actividad=Clase_actividad)
+        
+        """ Condicional para si hay un query param llamado Calle """
+        if Calle:
+            queryset = queryset.filter(Calle=Calle)
+        
+        """ Condicional para si hay un query param llamado Colonia """
+        if Colonia:
+            queryset = queryset.filter(Colonia=Colonia)
+        
+        """ Condicional para si hay un query param llamado CP """
+        if CP:
+            queryset = queryset.filter(CP=CP)
+        
+        """ Condicional para si hay un query param llamado Ubicacion """
+        if Ubicacion:
+            queryset = queryset.filter(Ubicacion=Ubicacion)
+        
+        serializer = CustomFilterSerializer(queryset, many=True)
+
+        data = {
+            'message': 'Success',
+            'data': serializer.data
+        }
+        
+        return Response(data, status=status.HTTP_200_OK)
