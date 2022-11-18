@@ -14,7 +14,7 @@ from django.contrib.gis.measure import Distance
 from django.core import serializers
 
 from .models import Locales
-from .serializers import CustomFilterSerializer
+from .serializers import (CustomFilterSerializer, getClaseActividadValuesSerializer)
 
 load_dotenv()
 
@@ -183,6 +183,24 @@ class getPlace(APIView):
         data = {
             'message': 'Success',
             'data': serializer.data
+        }
+        
+        return Response(data, status=status.HTTP_200_OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class getClaseActividadValues(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        values = Locales.objects.all().distinct('Clase_actividad')
+        
+        serializer = getClaseActividadValuesSerializer(values, many=True)
+
+        data = {
+        'message': 'Success',
+        'data': serializer.data
         }
         
         return Response(data, status=status.HTTP_200_OK)
