@@ -5,5 +5,6 @@ urlpatterns = [
     path('getPlaces/<str:query>', views.getPlaces.as_view(), name='getLocales'),
     path('getPlaceInfo/<int:pk>', views.getPlaceInfo.as_view(), name='getLocalesinfo'),
     path('getPlace/', views.getPlace.as_view(), name='getlocal'),
-    path('getClaseActividad/', views.getClaseActividadValues.as_view(), name='getClaseActividad')
+    path('getClaseActividad/', views.getClaseActividadValues.as_view(), name='getClaseActividad'),
+    path('registerPlace/', views.registerPlace.as_view(), name='registerPlace')
 ]

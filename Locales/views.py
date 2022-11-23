@@ -14,7 +14,7 @@ from django.contrib.gis.measure import Distance
 from django.core import serializers
 
 from .models import Locales
-from .serializers import (CustomFilterSerializer, getClaseActividadValuesSerializer)
+from .serializers import (CustomFilterSerializer, getClaseActividadValuesSerializer, registerPlaceSerializer)
 
 load_dotenv()
 
@@ -199,8 +199,41 @@ class getClaseActividadValues(APIView):
         serializer = getClaseActividadValuesSerializer(values, many=True)
 
         data = {
-        'message': 'Success',
-        'data': serializer.data
+            'message': 'Success',
+            'data': serializer.data
         }
         
         return Response(data, status=status.HTTP_200_OK)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class registerPlace(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        if request.method == 'POST':
+            print("Antes del data")
+            local = Locales.objects.create(
+                Nombre = request.data['nombre'],
+                Razon_social = request.data['razonSocial'],
+                Clase_actividad = request.data['claseActividad'],
+                Estrato = request.data['estrato'],
+                Tipo_vialidad = request.data['tipoVialidad'],
+                Calle = request.data['calle'],
+                Num_Exterior = request.data['numExterior'],
+                Num_Interior = request.data['numInterior'],
+                Colonia = request.data['colonia'],
+                CP = request.data['cp'],
+                Ubicacion = request.data['ubicacion'],
+                Telefono = request.data['telefono'],
+                Correo_e = request.data['email'],
+                Sitio_internet = request.data['sitioWeb'],
+                Tipo = request.data['tipoEstablecimiento'],
+                Longitud = request.data['Longitud'],
+                Latitud = request.data['Latitud'],
+                CentroComercial = request.data['centroComercial'],
+                NumLocal = request.data['numLocal']
+            )
+            local.save()
+            return Response({'message': "Lugar registrado exitosamente"}, status=status.HTTP_200_OK)
+        return Response({'error', 'Algo fué mal'}, status=status.HTTP_400_BAD_REQUEST)
