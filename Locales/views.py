@@ -214,24 +214,24 @@ class registerPlace(APIView):
         if request.method == 'POST':
             print("Antes del data")
             local = Locales.objects.create(
-                Nombre = request.data['nombre'],
-                Razon_social = request.data['razonSocial'],
-                Clase_actividad = request.data['claseActividad'],
-                Estrato = request.data['estrato'],
-                Tipo_vialidad = request.data['tipoVialidad'],
-                Calle = request.data['calle'],
+                Nombre = request.data['nombre'].upper(),
+                Razon_social = request.data['razonSocial'].upper(),
+                Clase_actividad = request.data['claseActividad'].lower(),
+                Estrato = request.data['estrato'].lower(),
+                Tipo_vialidad = request.data['tipoVialidad'].upper(),
+                Calle = request.data['calle'].upper(),
                 Num_Exterior = request.data['numExterior'],
                 Num_Interior = request.data['numInterior'],
-                Colonia = request.data['colonia'],
+                Colonia = request.data['colonia'].upper(),
                 CP = request.data['cp'],
-                Ubicacion = request.data['ubicacion'],
+                Ubicacion = request.data['ubicacion'].upper(),
                 Telefono = request.data['telefono'],
-                Correo_e = request.data['email'],
-                Sitio_internet = request.data['sitioWeb'],
-                Tipo = request.data['tipoEstablecimiento'],
+                Correo_e = request.data['email'].upper(),
+                Sitio_internet = request.data['sitioWeb'].upper(),
+                Tipo = request.data['tipoEstablecimiento'].title(),
                 Longitud = request.data['Longitud'],
                 Latitud = request.data['Latitud'],
-                CentroComercial = request.data['centroComercial'],
+                CentroComercial = request.data['centroComercial'].upper(),
                 NumLocal = request.data['numLocal']
             )
             local.save()

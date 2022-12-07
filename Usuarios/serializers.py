@@ -13,6 +13,7 @@ class UserSerializer(serializers.Serializer):
     telefono = serializers.CharField()
     password = serializers.CharField()
     password2 = serializers.CharField()
+    isEmpresa = serializers.BooleanField()
 
     def create(self, validated_data):
         instance = Usuarios()
@@ -21,6 +22,7 @@ class UserSerializer(serializers.Serializer):
         instance.username = validated_data.get('username')
         instance.email = validated_data.get('email')
         instance.telefono = validated_data.get('telefono')
+        instance.isEmpresa = validated_data.get('isEmpresa')
 
         password = validated_data.get('password')
         password2 = validated_data.get('password2')
