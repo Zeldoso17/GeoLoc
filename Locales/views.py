@@ -156,29 +156,31 @@ class getPlace(APIView):
 
         """ Condicional para si hay un query param llamado Nombre """
         if Nombre:
-            queryset = queryset.filter(Nombre=Nombre)
+            queryset = queryset.filter(Nombre__icontains=Nombre)
         
         """ Condicional para si hay un query param llamado Clase_actividad """
         if Clase_actividad:
-            queryset = queryset.filter(Clase_actividad=Clase_actividad)
+            queryset = queryset.filter(Clase_actividad__icontains=Clase_actividad)
         
         """ Condicional para si hay un query param llamado Calle """
         if Calle:
-            queryset = queryset.filter(Calle=Calle)
+            queryset = queryset.filter(Calle__icontains=Calle)
         
         """ Condicional para si hay un query param llamado Colonia """
         if Colonia:
-            queryset = queryset.filter(Colonia=Colonia)
+            queryset = queryset.filter(Colonia__icontains=Colonia)
         
         """ Condicional para si hay un query param llamado CP """
         if CP:
-            queryset = queryset.filter(CP=CP)
+            queryset = queryset.filter(CP__icontains=CP)
         
         """ Condicional para si hay un query param llamado Ubicacion """
         if Ubicacion:
-            queryset = queryset.filter(Ubicacion=Ubicacion)
+            queryset = queryset.filter(Ubicacion__icontains=Ubicacion)
         
         serializer = CustomFilterSerializer(queryset, many=True)
+
+        print("DATA SERIALIZER -> ", serializer.data)
 
         data = {
             'message': 'Success',
